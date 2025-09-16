@@ -1,4 +1,3 @@
-
 provider "aws" {
   region = "ca-central-1"
 }
@@ -9,23 +8,27 @@ resource "aws_s3_bucket" "static_site" {
 
   website {
     index_document = "index.html"
-  
+ 
   }
 }
 
-# Public access block (allow policies, but not ACLs)
+# Public access block settings (allow policies, no ACLs)
 resource "aws_s3_bucket_public_access_block" "public_access" {
   bucket = aws_s3_bucket.static_site.id
 
   block_public_acls       = true
-  block_public_policy     = false
   ignore_public_acls      = true
+  block_public_policy     = false   # ✅ allow bucket policies
   restrict_public_buckets = false
 }
 
-# Public read policy
+# Public read bucket policy
 resource "aws_s3_bucket_policy" "public_policy" {
   bucket = aws_s3_bucket.static_site.id
+
+  depends_on = [
+    aws_s3_bucket_public_access_block.public_access
+  ] # ✅ ensures block is updated first
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -41,7 +44,8 @@ resource "aws_s3_bucket_policy" "public_policy" {
   })
 }
 
-# Output website endpoint
+# Output the static website URL
 output "website_url" {
   value = aws_s3_bucket.static_site.website_endpoint
 }
+
