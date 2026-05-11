@@ -4,7 +4,7 @@ provider "aws" {
 
 # S3 bucket for static website
 resource "aws_s3_bucket" "static_site" {
-  bucket = "my-website-buckethellokumra-12345"   # must be globally unique
+  bucket = "my-website-buckethellokurma-12345"   # must be globally unique
 
   website {
     index_document = "index.html"
